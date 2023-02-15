@@ -4,7 +4,7 @@
 
 ![][1]
 
-[1]: ./gopas.png
+[1]: ./img/1.png
 
 ### License Information:
 
