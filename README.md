@@ -4,7 +4,7 @@
 
 ![][1]
 
-[1]: ./gopas.png =250x250
+[1]: ./gopas.png
 
 ### License Information:
 
