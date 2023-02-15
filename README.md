@@ -4,7 +4,7 @@
 
 ![][1]
 
-[1]: ./img/1.png
+[1]: ./img/0.png
 
 ### License Information:
 
