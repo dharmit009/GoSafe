@@ -1,4 +1,4 @@
-module github.com/dharmit009/gopas
+module github.com/dharmit009/gopass
 
 go 1.19
 

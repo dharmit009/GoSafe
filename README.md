@@ -1,10 +1,10 @@
-# GOPAS
+# GOPASS
 
-*Gopas* is a Cross Compiled Password Manager created using Golang and FyneGUI.
+*Gopass* is a Cross Compiled Password Manager created using Golang and FyneGUI.
 
 ![][1]
 
-[1]: ./img/Icon.png
+[1]: ./img/0.png
 
 ### License Information:
 

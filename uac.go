@@ -4,7 +4,8 @@ import "fmt"
 
 type User struct {
 
-	var fname, lname string 
+	var fname string 
+	var lname string 
 	var username string 
 	var email string 
 
@@ -12,9 +13,9 @@ type User struct {
 
 type Creds struct {
 
-	var webname string 
-	var username string
-	var passwords string 
+	var webname string  
+	var username string 
+	var password string
 
 }
  
