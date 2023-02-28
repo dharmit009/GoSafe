@@ -1,10 +1,16 @@
 # GOPASS
 
-*Gopass* is a Cross Compiled Password Manager created using Golang and FyneGUI.
+*Gopass* is a password manager created using Golang and FyneGUI. It uses
+Advance Encryption Standard 128-bit to store and manage the passwords.
 
 ![][1]
 
-[1]: ./img/0.png
+## Features Of Password Manager:
+
+- Uses 128-bit Symmetric Encryption.
+- Auto-Password Suggester.
+- Password Checker
+
 
 ### License Information:
 
@@ -14,3 +20,5 @@ src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />This
 work is licensed under a <a rel="license"
 href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons
 Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+
+[1]: ./img/0.png
