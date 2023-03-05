@@ -27,7 +27,7 @@ func CreateHash(key string) string {
 
 func Encrypt(passtoencrypt []byte, mpassphrase string) ([]byte, error) {
 	// creates aes cipher
-	block, err := aes.NewCipher([]byte(createHash(mpassphrase)))
+	block, err := aes.NewCipher([]byte(CreateHash(mpassphrase)))
 	check(err)
 	// Galois Counter Mode
 	gcm, err := cipher.NewGCM(block)
@@ -45,7 +45,7 @@ func Encrypt(passtoencrypt []byte, mpassphrase string) ([]byte, error) {
 
 func Decrypt(passtodecrypt []byte, mpassphrase string) ([]byte, error) {
 	// creates aes cipher
-	block, _ := aes.NewCipher([]byte(createHash(mpassphrase)))
+	block, _ := aes.NewCipher([]byte(CreateHash(mpassphrase)))
 	// galieous control mode
 	gcm, _ := cipher.NewGCM(block)
 	// getting nonceSize to separate encrypted passtodecrypt from cipher text.
@@ -63,7 +63,7 @@ func EncryptFile(filename string, data []byte, passphrase string) {
 	check(err)
 	defer file.Close()
 
-	ciphertext, err := encrypt(data, passphrase)
+	ciphertext, err := Encrypt(data, passphrase)
 	check(err)
 
 	fmt.Println("Ciphered Text: ", string(ciphertext))
@@ -84,7 +84,7 @@ func DecryptFile(filename string, passphrase string) ([]byte, error) {
 	_, err = file.Read(ciphertext)
 	check(err)
 
-	plaintext, err := decrypt(ciphertext, passphrase)
+	plaintext, err := Decrypt(ciphertext, passphrase)
 	check(err)
 
 	return plaintext, nil
