@@ -4,7 +4,7 @@ import "fmt"
 
 type User struct {
 
-	var fname string 
+	var fname string
 	var lname string 
 	var username string 
 	var email string 
@@ -18,10 +18,13 @@ type Creds struct {
 	var password string
 
 }
- 
 
 func main(){
 
-	// create a 
+	//create an average of an array
+
+
+
+
 
 }
