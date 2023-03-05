@@ -1,4 +1,4 @@
-package main
+package passutil
 
 import (
 	"crypto/aes"
@@ -19,13 +19,13 @@ func check(e error) {
 }
 
 // the mpassphrase get pushed here in order to generate hash for cipher.
-func createHash(key string) string {
+func CreateHash(key string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(key))
 	return hex.EncodeToString(hasher.Sum(nil))
 }
 
-func encrypt(passtoencrypt []byte, mpassphrase string) ([]byte, error) {
+func Encrypt(passtoencrypt []byte, mpassphrase string) ([]byte, error) {
 	// creates aes cipher
 	block, err := aes.NewCipher([]byte(createHash(mpassphrase)))
 	check(err)
@@ -43,7 +43,7 @@ func encrypt(passtoencrypt []byte, mpassphrase string) ([]byte, error) {
 	return ciphertext, nil
 }
 
-func decrypt(passtodecrypt []byte, mpassphrase string) ([]byte, error) {
+func Decrypt(passtodecrypt []byte, mpassphrase string) ([]byte, error) {
 	// creates aes cipher
 	block, _ := aes.NewCipher([]byte(createHash(mpassphrase)))
 	// galieous control mode
@@ -58,7 +58,7 @@ func decrypt(passtodecrypt []byte, mpassphrase string) ([]byte, error) {
 	return plaintext, nil
 }
 
-func encryptFile(filename string, data []byte, passphrase string) {
+func EncryptFile(filename string, data []byte, passphrase string) {
 	file, err := os.Create(filename)
 	check(err)
 	defer file.Close()
@@ -72,7 +72,7 @@ func encryptFile(filename string, data []byte, passphrase string) {
 	check(err)
 }
 
-func decryptFile(filename string, passphrase string) ([]byte, error) {
+func DecryptFile(filename string, passphrase string) ([]byte, error) {
 	file, err := os.Open(filename)
 	check(err)
 	defer file.Close()
