@@ -58,7 +58,10 @@ func Decrypt(passtodecrypt []byte, mpassphrase string) ([]byte, error) {
 	return plaintext, nil
 }
 
-func EncryptFile(filename string, data []byte, passphrase string) {
+// The function takes three inputs: first the filename, second the data
+// to be encrypted, and lastly the passphrase which is used to encrypt
+// the file
+func EncryptFile(filename string, data []byte, passphrase string) error {
 	file, err := os.Create(filename)
 	check(err)
 	defer file.Close()
@@ -70,8 +73,11 @@ func EncryptFile(filename string, data []byte, passphrase string) {
 
 	_, err = file.Write(ciphertext)
 	check(err)
+	return err
 }
 
+// The function takes two inputs: first the filename, and second the
+// masterpassword to decrypt the file.
 func DecryptFile(filename string, passphrase string) ([]byte, error) {
 	file, err := os.Open(filename)
 	check(err)

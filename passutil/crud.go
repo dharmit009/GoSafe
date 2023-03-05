@@ -23,8 +23,4 @@ func main(){
 
 	//create an average of an array
 
-
-
-
-
 }

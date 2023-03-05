@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func CheckPass(checkThisPass string) float32 {
+func StrengthCheck(checkThisPass string) float32 {
 
 	// fmt.Println("### passtest ###")
 
