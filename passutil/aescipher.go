@@ -96,7 +96,7 @@ func DecryptFile(filename string, passphrase string) ([]byte, error) {
 	return plaintext, nil
 }
 
-// func main() {
+// func () {
 //
 // 	mpass := "pass@@"
 // 	var hash string = createHash(mpass)
