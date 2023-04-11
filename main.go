@@ -1,8 +1,6 @@
 package main
 
-import (
-	"github.com/dharmit009/gopass/gui"
-)
+import "github.com/dharmit009/gopass/gui"
 
 func main() {
 	gui.RunGUI()
