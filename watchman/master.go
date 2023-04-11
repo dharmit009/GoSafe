@@ -39,14 +39,17 @@ func CheckPassEqualToMP(pass1 string) bool {
 	}
 }
 
-func CreateMasterKey(fileName, pass1, pass2 string) bool{
+func CreateMasterKey(fileName, pass1, pass2 string) bool {
 	if CheckMasterKey(fileName) == true {
 		return true
 	} else {
 		if CheckPassEqual(pass1, pass2) == true {
 			if err := passutil.EncryptFile(fileName, []byte(pass2), pass1); err != nil {
-				fmt.Println("Error while creating masterkey")
+				fmt.Println("Error: ", err)
 				return false
+			} else {
+				checker := CheckMasterKey(fileName)
+				fmt.Println("Master Key Created: ", checker)
 			}
 		} else {
 			fmt.Println("Error: passwords are not equal")
@@ -54,7 +57,6 @@ func CreateMasterKey(fileName, pass1, pass2 string) bool{
 		}
 		return true
 	}
-
 }
 
 // func main() {
