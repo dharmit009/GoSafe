@@ -24,12 +24,12 @@ func StrengthCheck(checkThisPass string) float32 {
 
 	//fmt.Println("Currently Checking: ", checkThisPass)
 
-  if len(checkThisPass) < 8 {
-    return 0
-  }
+	if len(checkThisPass) < 8 {
+		return 0
+	}
 
 	// checking if password is common or not !!
-	file, err := os.Open("./rockyou.txt")
+	file, err := os.Open("./passutil/rockyou.txt")
 	if err != nil {
 		fmt.Println("Error opening file:", err)
 	}
@@ -56,13 +56,12 @@ func StrengthCheck(checkThisPass string) float32 {
 			digitCount += 1
 		} else if strings.Contains(symbols, currentChar) {
 			symbolCount += 1
-    } else if strings.Contains(" ", currentChar) {
-      spaceCount += 1
+		} else if strings.Contains(" ", currentChar) {
+			spaceCount += 1
 		} else {
 			invalidPassFlag = true
 		}
 	}
-
 
 	if upperCount > 0 {
 		score += 2
@@ -86,13 +85,12 @@ func StrengthCheck(checkThisPass string) float32 {
 		score = 0
 	}
 
-  if common_pass_flag == true {
-      // fmt.Println("Common Password: ", checkThisPass)
-      score = 0
-  } else {
-      score += 2
-  }
-
+	if common_pass_flag == true {
+		// fmt.Println("Common Password: ", checkThisPass)
+		score = 0
+	} else {
+		score += 2
+	}
 
 	// fmt.Println("Length Of Pass: ", len(checkThisPass))
 	// fmt.Println("Upper Count: ", upperCount)

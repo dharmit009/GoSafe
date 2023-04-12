@@ -5,6 +5,7 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 
@@ -14,12 +15,12 @@ import (
 func Dashboard(w fyne.Window) *fyne.Container{
 
 	// Create a top canvas with an empty form
-	rhsContainer := container.NewHBox()
+	// rhsContainer := container.NewHBox()
 
 	form := widget.NewForm(
 		&widget.FormItem{Text: "Website Name", Widget: widget.NewEntry()},
 		&widget.FormItem{Text: "Username", Widget: widget.NewEntry()},
-		&widget.FormItem{Text: "Password", Widget: widget.NewPasswordEntry()},
+    &widget.FormItem{Text: "Password", Widget: widget.NewPasswordEntry()},
     // &widget.FormItem{Text: "Strength: ", Widget: widget.NewLabel("")},
     &widget.FormItem{Text: "Strength: ", Widget: widget.NewProgressBar()},
 	)
@@ -38,6 +39,11 @@ func Dashboard(w fyne.Window) *fyne.Container{
     strengthBar.Max = float64(11)
     strengthBar.SetValue(temp)
 	}))
+
+	form.Append("", widget.NewButtonWithIcon("Save", theme.DocumentSaveIcon(), func() {
+    form.Hide()
+	}))
+
 	form.Hide() // hide the form initially
 
 	// Create a rhs container with four buttons
@@ -45,22 +51,26 @@ func Dashboard(w fyne.Window) *fyne.Container{
 		// show the form when the button is clicked
 		form.Show()
 	})
+
 	viewBtn := widget.NewButtonWithIcon("View", theme.SearchIcon(), func() {})
 	delBtn := widget.NewButtonWithIcon("Delete", theme.DeleteIcon(), func() {})
 	updateBtn := widget.NewButtonWithIcon("Update", theme.UploadIcon(), func() {})
 
 	lhsContainer := container.NewVBox(
 		addBtn,
+    delBtn,
+    updateBtn,
 		viewBtn,
-		delBtn,
-		updateBtn,
 	)
-	lhsContainer.Resize(fyne.NewSize(0, 50)) 
+	// lhsContainer.Resize(fyne.NewSize(0, 100)) 
 
+  rhsContainer := fyne.NewContainerWithLayout(layout.NewMaxLayout(), form)
+
+  // lhsContainer.Layout()
 	// Combine the top and bottom canvases in a VBox
 	containera := container.NewHBox(
 		lhsContainer,
-		form,
+		// form,
 		rhsContainer,
 	)
 
