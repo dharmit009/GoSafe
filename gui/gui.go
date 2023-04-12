@@ -14,7 +14,8 @@ const (
 	windowTitle = "Gopass"
 )
 
-var registered bool
+var registered bool = false
+var logged bool = false
 
 func Register(w fyne.Window) {
 	passwordEntry := widget.NewPasswordEntry()
@@ -40,12 +41,14 @@ func Register(w fyne.Window) {
 		} else {
 			passwordEntry.SetText("")
 			passwordConfirmEntry.SetText("")
-			w.SetContent(widget.NewLabel("Registration Error"))
+			w.SetContent(widget.NewLabel("Master Password must be more than 8 characters"))
 		}
 	}))
 
 	container := fyne.NewContainerWithLayout(layout.NewMaxLayout(), form)
 	w.SetContent(container)
+	w.Resize(fyne.NewSize(700, 400))
+	w.Close()
 }
 
 func Login(w fyne.Window) {
@@ -55,9 +58,10 @@ func Login(w fyne.Window) {
 	form := widget.NewForm()
 	form.Append("", passwordConfirmEntry)
 	form.Append("", widget.NewButton("Login", func() {
-		comparer := watchman.CheckPassEqualToMP(passwordConfirmEntry.Text)
-		if comparer {
-			w.SetContent(widget.NewLabel("Login Successful!"))
+		if comparer := watchman.CheckPassEqualToMP(passwordConfirmEntry.Text); comparer == true {
+			logged = true
+			container := Dashboard(w)
+			w.SetContent(container)
 		} else {
 			w.SetContent(widget.NewLabel("Login Unsuccessful"))
 		}
@@ -65,6 +69,7 @@ func Login(w fyne.Window) {
 
 	container := fyne.NewContainerWithLayout(layout.NewMaxLayout(), form)
 	w.SetContent(container)
+	w.Resize(fyne.NewSize(700, 400))
 }
 
 func showLoginForm(w fyne.Window) {
@@ -74,13 +79,18 @@ func showLoginForm(w fyne.Window) {
 func RunGUI() {
 	a := app.New()
 	w := a.NewWindow(windowTitle)
+	keyexist := watchman.CheckMasterKey(fileName)
 
-	if success := watchman.CheckMasterKey(fileName); success && !registered {
+	if keyexist && !registered {
 		showLoginForm(w)
+	} else if keyexist && logged {
+		Dashboard(w)
 	} else {
 		Register(w)
 	}
 
 	w.ShowAndRun()
-	defer a.Quit()
+	w.Close()
+	w.Resize(fyne.NewSize(700, 400))
+	a.Quit()
 }

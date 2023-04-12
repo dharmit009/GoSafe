@@ -1,62 +1,71 @@
-package main
+package gui
 
 import (
+	// "strconv"
+
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 
 	"github.com/dharmit009/gopass/passutil"
 )
 
-func main() {
-	myApp := app.New()
-	myWindow := myApp.NewWindow("My Password Manager")
+func Dashboard(w fyne.Window) *fyne.Container{
 
 	// Create a top canvas with an empty form
-	topCanvas := container.NewHBox()
+	rhsContainer := container.NewHBox()
 
 	form := widget.NewForm(
 		&widget.FormItem{Text: "Website Name", Widget: widget.NewEntry()},
 		&widget.FormItem{Text: "Username", Widget: widget.NewEntry()},
 		&widget.FormItem{Text: "Password", Widget: widget.NewPasswordEntry()},
+    // &widget.FormItem{Text: "Strength: ", Widget: widget.NewLabel("")},
+    &widget.FormItem{Text: "Strength: ", Widget: widget.NewProgressBar()},
 	)
 
-	form.Append("Generate Password", widget.NewButton("Generate", func() {
+	form.Append("", widget.NewButtonWithIcon("Generate Password", theme.ViewRefreshIcon(), func() {
 		password := passutil.GeneratePassword() // generate a 16 character password using passutil package
 		form.Items[2].Widget.(*widget.Entry).SetText(password)
 	}))
 
+	form.Append("", widget.NewButtonWithIcon("Check Password Strength", theme.ConfirmIcon(), func() {
+		temp := float64(passutil.StrengthCheck(form.Items[2].Widget.(*widget.Entry).Text))
+		// s := strconv.FormatFloat(float64(temp), 'f', 2, 64)
+		// form.Items[3].Widget.(*widget.Label).SetText(s)
+    strengthBar := form.Items[3].Widget.(*widget.ProgressBar)
+    strengthBar.Min = float64(-3)
+    strengthBar.Max = float64(11)
+    strengthBar.SetValue(temp)
+	}))
 	form.Hide() // hide the form initially
 
-	// Create a bottom container with four buttons
-	addBtn := widget.NewButton("Add", func() {
+	// Create a rhs container with four buttons
+	addBtn := widget.NewButtonWithIcon("Add", theme.ContentAddIcon(), func() {
 		// show the form when the button is clicked
 		form.Show()
 	})
-	viewBtn := widget.NewButton("View", func() {})
-	delBtn := widget.NewButton("Delete", func() {})
-	updateBtn := widget.NewButton("Update", func() {})
+	viewBtn := widget.NewButtonWithIcon("View", theme.SearchIcon(), func() {})
+	delBtn := widget.NewButtonWithIcon("Delete", theme.DeleteIcon(), func() {})
+	updateBtn := widget.NewButtonWithIcon("Update", theme.UploadIcon(), func() {})
 
-	bottomContainer := container.NewVBox(
+	lhsContainer := container.NewVBox(
 		addBtn,
 		viewBtn,
 		delBtn,
 		updateBtn,
 	)
-	bottomContainer.Resize(fyne.NewSize(0, 50)) // set the height of the bottom container
+	lhsContainer.Resize(fyne.NewSize(0, 50)) 
 
 	// Combine the top and bottom canvases in a VBox
-	content := container.NewHBox(
-		bottomContainer,
+	containera := container.NewHBox(
+		lhsContainer,
 		form,
-		topCanvas,
+		rhsContainer,
 	)
 
+  return containera
 	// Set the window content to the VBox
-	myWindow.SetContent(content)
-
-	myWindow.Resize(fyne.NewSize(400, 400)) // set a default window size
-
-	myWindow.ShowAndRun()
+	// w.SetContent(containera)
+	// w.Resize(fyne.NewSize(700, 400))
 }

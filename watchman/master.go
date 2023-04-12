@@ -27,19 +27,29 @@ func CheckPassEqual(pass1, pass2 string) bool {
 
 // If password which is passed is equal to MP then return true else false
 func CheckPassEqualToMP(pass1 string) bool {
-	comparer, err := passutil.DecryptFile(fileName, pass1)
-	if err != nil {
-		return false
-	}
-
-	if pass1 != string(comparer) {
+	if pass1 == "" {
 		return false
 	} else {
-		return true
+		comparer, err := passutil.DecryptFile(fileName, pass1)
+		if err != nil {
+			return false
+		}
+		fmt.Println("Comparer: ", string(comparer))
+		fmt.Println("Pass1: ", string(pass1))
+		if pass1 != string(comparer) {
+			return false
+		} else {
+			return true
+		}
 	}
 }
 
 func CreateMasterKey(fileName, pass1, pass2 string) bool {
+
+  if len(pass1) < 8 && len(pass2) < 8 {
+    return false
+  }
+
 	if CheckMasterKey(fileName) == true {
 		return true
 	} else {
