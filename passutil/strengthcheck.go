@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+const(
+  rockyou = "./rockyou.txt"
+)
+
 func StrengthCheck(checkThisPass string) float32 {
 
 	// fmt.Println("### passtest ###")
@@ -29,7 +33,7 @@ func StrengthCheck(checkThisPass string) float32 {
 	}
 
 	// checking if password is common or not !!
-	file, err := os.Open("./passutil/rockyou.txt")
+	file, err := os.Open(rockyou)
 	if err != nil {
 		fmt.Println("Error opening file:", err)
 	}

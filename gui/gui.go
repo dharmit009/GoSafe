@@ -63,7 +63,7 @@ func Login(w fyne.Window) {
 			container := Dashboard(w)
 			w.SetContent(container)
 		} else {
-			w.SetContent(widget.NewLabel("Login Unsuccessful"))
+      ShowErrorDialog(w, "Error", "Incorrect Password. Try Again")
 		}
 	}))
 
