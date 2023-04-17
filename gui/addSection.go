@@ -10,7 +10,8 @@ import (
 	"github.com/dharmit009/gopass/watchman"
 )
 
-// checks input fields
+// fieldChecker() is used to check if all input entries are field 
+// if all input fields are filled than return true else false.
 func fieldChecker(form *widget.Form, numberOfItems int) bool {
 	var out bool = true
 	for x := 0; x < numberOfItems; x++ {
@@ -21,7 +22,9 @@ func fieldChecker(form *widget.Form, numberOfItems int) bool {
 	return out
 }
 
+// AddForm() function is used to trigger add section form. 
 func AddForm(w fyne.Window) *widget.Form {
+
 	form := widget.NewForm(
 		&widget.FormItem{Text: "Website Name", Widget: widget.NewEntry()},
 		&widget.FormItem{Text: "Username", Widget: widget.NewEntry()},
@@ -59,7 +62,18 @@ func AddForm(w fyne.Window) *widget.Form {
 						)
 						if err != nil {
 							dialog.NewError(err, w)
-						}
+						} else{
+              dialog.ShowInformation("Info", "Password Saved Successfully!", w)
+            }
+						form.Items[0].Widget.(*widget.Entry).Text = ""
+						form.Items[1].Widget.(*widget.Entry).Text = ""
+						form.Items[2].Widget.(*widget.Entry).Text = ""
+						form.Items[3].Widget.(*widget.Entry).Text = ""
+
+						form.Items[0].Widget.(*widget.Entry).Refresh()
+						form.Items[1].Widget.(*widget.Entry).Refresh()
+						form.Items[2].Widget.(*widget.Entry).Refresh()
+						form.Items[3].Widget.(*widget.Entry).Refresh()
 					}
 				})
 			} else {

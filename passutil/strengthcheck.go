@@ -11,6 +11,7 @@ const(
   rockyou = "./rockyou.txt"
 )
 
+// Used to check strength of passwords and gives a score out of 10.
 func StrengthCheck(checkThisPass string) float32 {
 
 	// fmt.Println("### passtest ###")
@@ -22,9 +23,9 @@ func StrengthCheck(checkThisPass string) float32 {
 	var digits string = "0123456789"
 	var symbols string = "!@#$%&*()[]{}-_+=';:.,"
 	var upperCount, lowerCount, digitCount, symbolCount, spaceCount = 0, 0, 0, 0, 0
-	var score float32 = 0
 	var common_pass_flag bool = false
 	var invalidPassFlag bool = false
+	var score float32 = 0
 
 	//fmt.Println("Currently Checking: ", checkThisPass)
 
@@ -68,10 +69,10 @@ func StrengthCheck(checkThisPass string) float32 {
 	}
 
 	if upperCount > 0 {
-		score += 2
+		score += 1 
 	}
 	if lowerCount > 0 {
-		score += 1
+		score += 1 
 	}
 	if digitCount > 0 {
 		score += 1
@@ -91,9 +92,9 @@ func StrengthCheck(checkThisPass string) float32 {
 
 	if common_pass_flag == true {
 		// fmt.Println("Common Password: ", checkThisPass)
-		score = 0
+		score = 1
 	} else {
-		score += 2
+		score += 3
 	}
 
 	// fmt.Println("Length Of Pass: ", len(checkThisPass))

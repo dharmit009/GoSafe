@@ -16,6 +16,7 @@ func header(mess string) {
 	fmt.Println()
 }
 
+// Used to generate random password
 func GeneratePassword() string {
 	// header("### Pass Generator ###")
 

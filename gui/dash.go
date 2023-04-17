@@ -5,20 +5,23 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"github.com/dharmit009/gopass/watchman"
+
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+
 )
 
+func reloadDB(){
+  db := watchman.LoadPasswordDB(dbfile)
+  watchman.SavePasswordDB(db, dbfile)
+}
+
+
+// Outputs Dashboard to the screen also works as master form and loads other forms
+// based on triggers.
 func Dashboard(w fyne.Window) *fyne.Container {
-
-	// ------VVVVVVVVV------------DEL FORM-------VVVVVVVVV---------------------- //
-
-	delform := widget.NewForm(
-		&widget.FormItem{Text: "delForm", Widget: widget.NewLabel("")},
-	)
-	delform.Hide() // hide the form initially
-	// Create a rhs container with four buttons
 
 	// ------VVVVVVVVV------------UPDATE FORM-------VVVVVVVVV---------------------- //
 	updform := widget.NewForm(
@@ -27,35 +30,70 @@ func Dashboard(w fyne.Window) *fyne.Container {
 	updform.Hide() // hide the form initially
 
 	// ------------------------------------------------------------------------- //
-
 	addform := AddForm(w)
-	viewform := ViewForm()
+
+	viewform, list := ViewForm(w)
+	listc := container.NewHScroll(list)
+	viewc := container.NewGridWithColumns(2, listc, viewform)
+
+  delform, dlist := DelForm(w)
+  listd := container.NewHScroll(dlist)
+	delec := container.NewHSplit(listd, delform)
+
+	viewc.Hide()
+  delec.Hide()
+
 	addBtn := widget.NewButtonWithIcon("Add", theme.ContentAddIcon(), func() {
+    reloadDB()
+
 		addform.Show()
-		viewform.Hide()
 		delform.Hide()
 		updform.Hide()
+		viewform.Hide()
+
+		viewc.Hide()
+    delec.Hide()
+
 	})
 
 	viewBtn := widget.NewButtonWithIcon("View", theme.SearchIcon(), func() {
+    reloadDB()
+
 		addform.Hide()
-		viewform.Show()
 		delform.Hide()
 		updform.Hide()
+		viewform.Show()
+
+		viewc.Show()
+    delec.Hide()
+
 	})
 
 	delBtn := widget.NewButtonWithIcon("Delete", theme.DeleteIcon(), func() {
+
+    reloadDB()
+
 		addform.Hide()
-		viewform.Hide()
 		delform.Show()
 		updform.Hide()
+		viewform.Hide()
+
+		viewc.Hide()
+    delec.Show()
+
 	})
 
 	updateBtn := widget.NewButtonWithIcon("Update", theme.UploadIcon(), func() {
+    reloadDB()
+
 		addform.Hide()
-		viewform.Hide()
 		delform.Hide()
 		updform.Show()
+		viewform.Hide()
+
+		viewc.Hide()
+    delec.Hide()
+
 	})
 
 	lhsContainer := container.NewVBox(
@@ -66,7 +104,7 @@ func Dashboard(w fyne.Window) *fyne.Container {
 	)
 	// lhsContainer.Resize(fyne.NewSize(0, 100))
 
-	rhsContainer := fyne.NewContainerWithLayout(layout.NewMaxLayout(), addform, delform, updform, viewform)
+	rhsContainer := fyne.NewContainerWithLayout(layout.NewHBoxLayout(), addform, delec, updform, viewc)
 
 	// lhsContainer.Layout()
 	// Combine the top and bottom canvases in a VBox

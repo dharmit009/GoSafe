@@ -12,6 +12,7 @@ import (
 	"os"
 )
 
+// function to check if error is not nil
 func check(e error) {
 	if e != nil {
 		log.Fatal(e)
@@ -25,6 +26,7 @@ func CreateHash(key string) string {
 	return hex.EncodeToString(hasher.Sum(nil))
 }
 
+// Function to encrypt strings.
 func Encrypt(passtoencrypt []byte, mpassphrase string) ([]byte, error) {
 	// creates aes cipher
 	block, err := aes.NewCipher([]byte(CreateHash(mpassphrase)))
@@ -43,6 +45,7 @@ func Encrypt(passtoencrypt []byte, mpassphrase string) ([]byte, error) {
 	return ciphertext, nil
 }
 
+// Function to decrypt strings.
 func Decrypt(passtodecrypt []byte, mpassphrase string) ([]byte, error) {
 	// creates aes cipher
 	block, _ := aes.NewCipher([]byte(CreateHash(mpassphrase)))

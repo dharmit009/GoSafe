@@ -11,12 +11,14 @@ import (
 
 const (
 	fileName    = "./test.enc"
+	dbfile      = "./passwords.json"
 	windowTitle = "Gopass"
 )
 
 var registered bool = false
 var logged bool = false
 
+// The Register() is used to create master password.
 func Register(w fyne.Window) {
 	passwordEntry := widget.NewPasswordEntry()
 	passwordConfirmEntry := widget.NewPasswordEntry()
@@ -51,6 +53,7 @@ func Register(w fyne.Window) {
 	w.Close()
 }
 
+// Used to trigger login form 
 func Login(w fyne.Window) {
 	passwordConfirmEntry := widget.NewPasswordEntry()
 	passwordConfirmEntry.PlaceHolder = "Enter Your Master Password"
@@ -63,7 +66,7 @@ func Login(w fyne.Window) {
 			container := Dashboard(w)
 			w.SetContent(container)
 		} else {
-      ShowErrorDialog(w, "Error", "Incorrect Password. Try Again")
+			ShowErrorDialog(w, "Error", "Incorrect Password. Try Again")
 		}
 	}))
 
@@ -72,6 +75,7 @@ func Login(w fyne.Window) {
 	w.Resize(fyne.NewSize(700, 400))
 }
 
+// Redirects to login page
 func showLoginForm(w fyne.Window) {
 	Login(w)
 }
