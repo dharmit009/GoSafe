@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	//  "encoding/json"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
@@ -187,7 +186,14 @@ func main() {
 	removeTab.Add(webeel)
 	removeTab.Add(unamel)
 	removeTab.Add(passel)
-	removeTab.Add(widget.NewButtonWithIcon("Remove", theme.ContentRemoveIcon(), func() {}))
+	removeTab.Add(widget.NewButtonWithIcon("Remove", theme.ContentRemoveIcon(), func() {
+
+		id, err := strconv.Atoi(strings.Split(dropdown.Selected, ":")[0])
+		err = j.RemoveEntry(id)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}))
 
 	// <---------------------- GUI MANAGEMENT SECTION ------------------------>
 
@@ -202,7 +208,7 @@ func main() {
 	tabs.OnChanged = func(tab *container.TabItem) {
 		// switchTab(*j, entries, vitems, vdropdown, dropdown, tabs)
 		resetFields(*j, entryFields, labelFields, dropdown)
-    refreshList(*j, dropdown)
+		refreshList(*j, dropdown)
 	}
 
 	tabs.SetTabLocation(container.TabLocationTop)
@@ -234,20 +240,20 @@ func resetFields(j jman.Jman, entryFields []*widget.Entry, labelFields []*widget
 	}
 
 	drop.ClearSelected()
-  items := refreshList(j, drop)
-  drop.Options = items
+	items := refreshList(j, drop)
+	drop.Options = items
 
 }
 
 func refreshList(j jman.Jman, dropdown *widget.Select) []string {
-  entries = updateEntries(j)
+	entries = updateEntries(j)
 
 	items := make([]string, len(entries))
 	for i, entry := range entries {
 		items[i] = fmt.Sprintf("%d: %s", entry.ID, entry.Website)
 	}
 
-  return items
+	return items
 
 }
 
@@ -264,4 +270,3 @@ func updateEntries(j jman.Jman) []jman.Entry {
 
 	return entries
 }
-
