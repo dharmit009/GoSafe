@@ -74,7 +74,9 @@ func EncryptFile(filename string, data []byte, passphrase string) error {
 
 	fmt.Println("Ciphered Text: ", string(ciphertext))
 
-	_, err = file.Write(ciphertext)
+  final := []byte(ciphertext)
+	_, err = file.Write(final)
+
 	check(err)
 	return err
 }
@@ -96,7 +98,9 @@ func DecryptFile(filename string, passphrase string) ([]byte, error) {
 	plaintext, err := Decrypt(ciphertext, passphrase)
 	check(err)
 
-	return plaintext, nil
+  final := []byte(plaintext)
+
+	return final, nil
 }
 
 // func () {

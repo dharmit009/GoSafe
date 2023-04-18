@@ -6,10 +6,10 @@ import (
 	"strings"
 
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
+	// "fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 
 	"github.com/dharmit009/gopass/jman"
@@ -44,13 +44,10 @@ var (
 	strengthbar   *widget.ProgressBar
 )
 
-func Tabs() fyne.Window {
-
-	a := app.New()
-	w := a.NewWindow("Password Manager")
+func Tabs(window fyne.Window) *fyne.Container {
 
 	// 	<---------------------- WIDGETS SECTION ------------------------>
-	entries = updateEntries(*j)
+	entries = updateEntries(*j, window)
 
 	items := make([]string, len(entries))
 	for i, entry := range entries {
@@ -70,15 +67,13 @@ func Tabs() fyne.Window {
 		// Find the selected entry by ID and populate the entry details
 		for _, entry := range entries {
 			if entry.ID == selectedID {
-
 				webeel.SetText("Website: " + entry.Website)
 				unamel.SetText("Username: " + entry.Username)
-				passel.SetText("Password: " + entry.Password)
 
 				idl.SetText("ID: " + strconv.Itoa(entry.ID))
 				webee.SetText(entry.Website)
 				uname.SetText(entry.Username)
-				passe.SetText(entry.Password)
+				passe.SetText("")
 				break
 			}
 		}
@@ -108,6 +103,7 @@ func Tabs() fyne.Window {
 	viewTab.Add(webeel)
 	viewTab.Add(unamel)
 	viewTab.Add(passel)
+	viewTab.Add(mpass)
 	viewTab.Add(widget.NewButtonWithIcon("View", theme.ZoomInIcon(), func() {}))
 
 	// <---------------------- ADD TAB SECTION ------------------------>
@@ -129,15 +125,24 @@ func Tabs() fyne.Window {
 		p := passe.Text
 
 		if webee.Text != "" && uname.Text != "" && passe.Text != "" && mpass.Text != "" {
-			ShowConfirmationDialog(w, "Add Entry?", "Are you sure you want to Add this entry?", func(response bool) {
-				if response {
-					err := j.AddEntry(we, u, p)
-					resetFields(*j, entryFields, labelFields, dropdown)
-					if err != nil {
-						fmt.Println(err)
+			if out := passutil.CheckPassEqualToMP(mpass.Text); out == true {
+				ShowConfirmationDialog(window, "Add Entry?", "Are you sure you want to Add this entry?", func(response bool) {
+					if response {
+						err := j.AddEntry(we, u, p)
+						if err != nil {
+							ShowErrorDialog(window, "Error", "Password Cannot be saved!")
+						}
+						resetFields(*j, entryFields, labelFields, dropdown, window)
+						if err != nil {
+							fmt.Println(err)
+						}
 					}
-				}
-			})
+				})
+			} else {
+				ShowErrorDialog(window, "Error", "Master Password is Incorrect!!")
+			}
+		} else {
+			ShowErrorDialog(window, "Error", "Field is empty!")
 		}
 
 	}))
@@ -164,10 +169,10 @@ func Tabs() fyne.Window {
 		p := passe.Text
 
 		if id > 0 {
-			ShowConfirmationDialog(w, "Remove Entry?", "Are you sure you want to delete this entry?", func(response bool) {
+			ShowConfirmationDialog(window, "Remove Entry?", "Are you sure you want to delete this entry?", func(response bool) {
 				if response {
 					err = j.UpdateEntry(id, we, u, p)
-					resetFields(*j, entryFields, labelFields, dropdown)
+					resetFields(*j, entryFields, labelFields, dropdown, window)
 					if err != nil {
 						fmt.Println(err)
 					}
@@ -190,10 +195,10 @@ func Tabs() fyne.Window {
 
 		id, err := strconv.Atoi(strings.Split(dropdown.Selected, ":")[0])
 		if id > 0 {
-			ShowConfirmationDialog(w, "Remove Entry?", "Are you sure you want to delete this entry?", func(response bool) {
+			ShowConfirmationDialog(window, "Remove Entry?", "Are you sure you want to delete this entry?", func(response bool) {
 				if response {
 					err = j.RemoveEntry(id)
-					resetFields(*j, entryFields, labelFields, dropdown)
+					resetFields(*j, entryFields, labelFields, dropdown, window)
 					if err != nil {
 						fmt.Println(err)
 					}
@@ -214,19 +219,15 @@ func Tabs() fyne.Window {
 
 	tabs.OnChanged = func(tab *container.TabItem) {
 		// switchTab(*j, entries, vitems, vdropdown, dropdown, tabs)
-		resetFields(*j, entryFields, labelFields, dropdown)
-		refreshList(*j, dropdown)
+		resetFields(*j, entryFields, labelFields, dropdown, window)
+		refreshList(*j, dropdown, window)
 	}
 
 	tabs.SetTabLocation(container.TabLocationTop)
-
-	// Set Content
-	w.SetContent(tabs)
-
-	// Show Window
-	w.Resize(fyne.NewSize(400, 300))
-	w.ShowAndRun()
-  return w
+	c := container.New(layout.NewVBoxLayout(),
+		tabs,
+	)
+	return c
 }
 
 func autoGen() {
@@ -238,7 +239,9 @@ func autoGen() {
 	return
 }
 
-func resetFields(j jman.Jman, entryFields []*widget.Entry, labelFields []*widget.Label, drop *widget.Select) {
+func resetFields(j jman.Jman, entryFields []*widget.Entry,
+	labelFields []*widget.Label, drop *widget.Select, window fyne.Window) {
+
 	// Reset text for all Entry widgets
 	for _, entryy := range entryFields {
 		entryy.SetText("")
@@ -251,13 +254,13 @@ func resetFields(j jman.Jman, entryFields []*widget.Entry, labelFields []*widget
 	}
 
 	drop.ClearSelected()
-	items := refreshList(j, drop)
+	items := refreshList(j, drop, window)
 	drop.Options = items
 
 }
 
-func refreshList(j jman.Jman, dropdown *widget.Select) []string {
-	entries = updateEntries(j)
+func refreshList(j jman.Jman, dropdown *widget.Select, window fyne.Window) []string {
+	entries = updateEntries(j, window)
 
 	items := make([]string, len(entries))
 	for i, entry := range entries {
@@ -268,14 +271,14 @@ func refreshList(j jman.Jman, dropdown *widget.Select) []string {
 
 }
 
-func updateEntries(j jman.Jman) []jman.Entry {
+func updateEntries(j jman.Jman, window fyne.Window) []jman.Entry {
 	err := j.Save()
 	if err != nil {
-		fmt.Println("Error (Save of Data): ", err)
+		ShowErrorDialog(window, "Error", "Error: Data was not Saved!")
 	}
 	err = j.Load()
 	if err != nil {
-		fmt.Println("Error (Loading of Data): ", err)
+		ShowErrorDialog(window, "Error", "Error: Loading of Data failed!")
 	}
 	entries, _ = j.GetEntries()
 

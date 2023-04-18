@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-const fileName = "./test.enc"
+const fileName = "master.enc"
 
 // This function is used to check if master key exists or not ...
 func CheckMasterKey(fileName string) bool {
@@ -29,7 +29,7 @@ func CheckPassEqualToMP(pass1 string) bool {
   if pass1 == "" {
     return logInfo
   }
-	var fileName string = "./test.enc"
+	var fileName string = "master.enc"
 	out, err := DecryptFile(fileName, pass1)
 	if err != nil {
     logInfo = false

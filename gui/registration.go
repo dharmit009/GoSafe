@@ -1,65 +1,52 @@
-package gui 
+package gui
 
 import (
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
-	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/dharmit009/gopass/passutil"
 )
 
 var (
-	rpass1 = widget.NewPasswordEntry()
-	rpass2 = widget.NewPasswordEntry()
+  fileName = "master.enc"
+	registered = false
+	rpass1     = widget.NewPasswordEntry()
+	rpass2     = widget.NewPasswordEntry()
 )
 
-func Registration() fyne.Window {
-
-	myApp := app.New()
-	myWindow := myApp.NewWindow("Password Manager")
-	myWindow.Resize(fyne.NewSize(400, 300))
-	myWindow.SetFixedSize(true)
+func Registration(window fyne.Window) (*fyne.Container, bool) {
 
 	rpass1.SetPlaceHolder("Enter Master Password")
 	rpass2.SetPlaceHolder("Confirm your Master Password")
 
 	// Create the confirmation button
-	confirmButton := widget.NewButton("Submit", createAccount(myWindow))
+	confirmButton := widget.NewButton("Submit", func(){
+		flag := passutil.CheckPassEqual(rpass1.Text, rpass2.Text)
+		if !flag {
+			rpass1.SetText("")
+			rpass2.SetText("")
+      ShowErrorDialog(window, "Error", "Passwords do not match!")
+			return
+		}
+		if passutil.CreateMasterKey(fileName, rpass2.Text, rpass1.Text) {
+      container, registered := Login(window)
+      window.SetContent(container)
+      _ = registered
+		} else {
+			rpass1.SetText("")
+			rpass2.SetText("")
+      ShowErrorDialog(window, "Error", "Passwords must be equal to or more than 8 characters")
+		}
+	})
+
 
 	// Create the rpass1 form layout
-	form := container.New(layout.NewVBoxLayout(),
+	c := container.New(layout.NewVBoxLayout(),
 		rpass1,
 		rpass2,
 		confirmButton,
 	)
 
-	// Set the rpass1 form as the content of the window
-	myWindow.SetContent(form)
-	// Set the window size and icon myWindow.Resize(fyne.NewSize(400, 200))
-	myWindow.SetIcon(theme.FyneLogo())
-	// Show the window and run the application
-	myWindow.ShowAndRun()
-
-  return myWindow
-}
-
-func createAccount(myWindow fyne.Window) func() {
-	return func() {
-		if rpass1.Text == "" || rpass2.Text == "" {
-			dialog.ShowInformation("Error", "Please enter a master password and confirm it.", myWindow)
-			return
-		}
-
-		if rpass1.Text != rpass2.Text {
-			dialog.ShowInformation("Error", "Master password and confirmation do not match.", myWindow)
-			return
-		}
-
-		if rpass1.Text == rpass2.Text {
-		dialog.ShowInformation("Success", "Account created successfully.", myWindow)
-    }
-
-	}
+	return c, registered
 }

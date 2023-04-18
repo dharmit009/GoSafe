@@ -4,7 +4,7 @@ import (
 	"testing"
   "fmt"
 
-	"github.com/dharmit009/gopass/ui/passutil"
+	"github.com/dharmit009/gopass/passutil"
 )
 
 func TestGeneratePassword(t *testing.T) {
