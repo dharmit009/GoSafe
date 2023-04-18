@@ -1,182 +1,142 @@
 package jman
 
 import (
-	"fmt"
+	"encoding/json"
+	"errors"
+	"io/ioutil"
+	"os"
 )
 
-const jsfile = "passwords.json"
+const jsfile = "password.json"
 
-type PasswordEntry struct {
-	CredId   int    `json:"cred_id"`
+type Entry struct {
+	ID       int    `json:"id"`
 	Website  string `json:"website"`
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
-type PasswordManager struct {
-	Entries []PasswordEntry `json:"entries"`
+type Jman struct {
+	Entries []*Entry `json:"entries"`
 }
 
-// func LoadJsonFile(jsfile string) PasswordManager{
-// 	var manager PasswordManager
-// 	// Load existing entries from file, if it exists
-// 	if _, err := os.Stat(jsfile); err == nil {
-// 		data, _ := ioutil.ReadFile(jsfile)
-// 		err = json.Unmarshal(data, &manager)
-// 	}
-//   return manager
-// }
-
-func (m *PasswordManager) GetEntry(id int) (PasswordEntry, error) {
-	for _, entry := range m.Entries {
-		if entry.CredId == id {
-			return entry, nil
+func NewJman() (*Jman, error) {
+	j := &Jman{
+		Entries: []*Entry{},
+	}
+	if fileExists(jsfile) {
+		err := j.Load()
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		err := createFile(jsfile)
+		if err != nil {
+			return nil, err
 		}
 	}
-	return PasswordEntry{}, fmt.Errorf("entry with CredId %d not found", id)
+	return j, nil
 }
 
-func (m *PasswordManager) AddEntry(entry PasswordEntry) {
-	// Find the highest existing CredId, and increment by 1 for the new entry
+func (j *Jman) Load() error {
+	data, err := ioutil.ReadFile(jsfile)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(data, &j)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
-  fmt.Println(jsfile)
-  fmt.Println(entry.Website)
-  fmt.Println(entry.Username)
-  fmt.Println(entry.Password)
-	highestId := 0
-	for _, existing := range m.Entries {
-		if existing.CredId > highestId {
-			highestId = existing.CredId
+func (j *Jman) Save() error {
+	data, err := json.Marshal(j)
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(jsfile, data, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (j *Jman) GetEntries() ([]Entry, error) {
+	entries := []Entry{}
+	for _, e := range j.Entries {
+		entries = append(entries, *e)
+	}
+	return entries, nil
+}
+
+func (j *Jman) AddEntry(website, username, password string) error {
+	id := 0
+	for _, e := range j.Entries {
+		if e.ID > id {
+			id = e.ID
 		}
 	}
-	entry.CredId = highestId + 1
-	m.Entries = append(m.Entries, entry)
+	entry := Entry{
+		ID:       id + 1,
+		Website:  website,
+		Username: username,
+		Password: password,
+	}
+	j.Entries = append(j.Entries, &entry)
+	return j.Save()
 }
 
-func (m *PasswordManager) RemoveEntry(id int) error {
-	for i, entry := range m.Entries {
-		if entry.CredId == id {
-			m.Entries = append(m.Entries[:i], m.Entries[i+1:]...)
-			return nil
+func (j *Jman) RemoveEntry(id int) error {
+	found := false
+	for i, e := range j.Entries {
+		if e.ID == id {
+			copy(j.Entries[i:], j.Entries[i+1:])
+			j.Entries[len(j.Entries)-1] = nil
+			j.Entries = j.Entries[:len(j.Entries)-1]
+			found = true
+			break
 		}
 	}
-	return fmt.Errorf("entry with CredId %d not found", id)
+	if !found {
+		return errors.New("entry not found")
+	}
+	return j.Save()
 }
 
-func (m *PasswordManager) UpdateEntry(updatedEntry PasswordEntry) error {
-	for i, entry := range m.Entries {
-		if entry.CredId == updatedEntry.CredId {
-			m.Entries[i] = updatedEntry
-			return nil
+func (j *Jman) UpdateEntry(id int, website, username, password string) error {
+	for _, e := range j.Entries {
+		if e.ID == id {
+			e.Website = website
+			e.Username = username
+			e.Password = password
+			return j.Save()
 		}
 	}
-	return fmt.Errorf("entry with CredId %d not found", updatedEntry.CredId)
+	return errors.New("entry not found")
 }
 
-func GetNewEntry(w, u, p string) (PasswordEntry, error) {
-	var entry PasswordEntry
-
-	entry.Website = w
-	entry.Username = u
-	entry.Password = p
-
-	return entry, nil
+func fileExists(jsfile string) bool {
+	_, err := os.Stat(jsfile)
+	return err == nil
 }
 
-
-// FOR REFERENCE
-// 
-	// for {
-	// 	fmt.Println("Select an action:")
-	// 	fmt.Println("1. Retrieve an entry")
-	// 	fmt.Println("2. Add an entry")
-	// 	fmt.Println("3. Remove an entry")
-	// 	fmt.Println("4. Update an entry")
-	// 	fmt.Println("5. Save and quit")
-
-	// 	var choice int
-	// 	fmt.Scanln(&choice)
-
-	// 	switch choice {
-	// 	case 1:
-	// 		fmt.Println("Enter CredId:")
-	// 		var id int
-	// 		fmt.Scanln(&id)
-	// 		entry, err := manager.GetEntry(id)
-	// 		if err != nil {
-	// 			fmt.Println("Error retrieving entry:", err)
-	// 		} else {
-	// 			fmt.Println(entry)
-	// 		}
-	// 	case 2:
-	// 		entry, err := GetNewEntry()
-	// 		if err != nil {
-	// 			fmt.Println("Error creating new entry:", err)
-	// 		} else {
-	// 			manager.AddEntry(entry)
-	// 		}
-	// 	case 3:
-	// 		fmt.Println("Enter CredId:")
-	// 		var id int
-	// 		fmt.Scanln(&id)
-	// 		err := manager.RemoveEntry(id)
-	// 		if err != nil {
-	// 			fmt.Println("Error removing entry:", err)
-	// 		}
-	// 	case 4:
-	// 		fmt.Println("Enter CredId:")
-	// 		var id int
-	// 		fmt.Scanln(&id)
-	// 		entry, err := manager.GetEntry(id)
-	// 		if err != nil {
-	// 			fmt.Println("Error retrieving entry:", err)
-	// 		} else {
-	// 			fmt.Println("Enter attribute to update:")
-	// 			fmt.Println("1. Website")
-	// 			fmt.Println("2. Username")
-	// 			fmt.Println("3. Password")
-	// 			var attr int
-	// 			fmt.Scanln(&attr)
-	// 			switch attr {
-	// 			case 1:
-	// 				fmt.Println("Enter new website:")
-	// 				var website string
-	// 				fmt.Scanln(&website)
-	// 				entry.Website = website
-	// 			case 2:
-	// 				fmt.Println("Enter new username:")
-	// 				var username string
-	// 				fmt.Scanln(&username)
-	// 				entry.Username = username
-	// 			case 3:
-	// 				fmt.Println("Enter new password:")
-	// 				var password string
-	// 				fmt.Scanln(&password)
-	// 				entry.Password = password
-	// 			default:
-	// 				fmt.Println("Invalid attribute")
-	// 				continue
-	// 			}
-	// 			err = manager.UpdateEntry(entry)
-	// 			if err != nil {
-	// 				fmt.Println("Error updating entry:", err)
-	// 			}
-	// 		}
-	// 	case 5:
-	// 		data, err := json.MarshalIndent(manager, "", "    ")
-	// 		if err != nil {
-	// 			fmt.Println("Error saving passwords:", err)
-	// 			return
-	// 		}
-	// 		err = ioutil.WriteFile("passwords.json", data, 0644)
-	// 		if err != nil {
-	// 			fmt.Println("Error saving passwords:", err)
-	// 			return
-	// 		}
-	// 		fmt.Println("Passwords saved. Goodbye!")
-	// 		return
-	// 	default:
-	// 		fmt.Println("Invalid choice")
-	// 	}
-	// }
-
+func createFile(jsfile string) error {
+	file, err := os.Create(jsfile)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	j := &Jman{
+		Entries: []*Entry{},
+	}
+	data, err := json.Marshal(j)
+	if err != nil {
+		return err
+	}
+	_, err = file.Write(data)
+	if err != nil {
+		return err
+	}
+	return nil
+}

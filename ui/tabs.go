@@ -1,12 +1,13 @@
 package main
 
 import (
-	 "fmt"
-  "os"
-	"log"
-	"io/ioutil"
-	"encoding/json"
+	"fmt"
+	//	"io/ioutil"
+	// 	"log"
+	"strconv"
+	"strings"
 
+	//  "encoding/json"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
@@ -18,18 +19,12 @@ import (
 	"github.com/dharmit009/gopass/ui/jman"
 )
 
-const jsfile = "./passwords.json"
+const jsfile = "./password.json"
 
-// type PasswordEntry struct {
-// 	CredId   string
-// 	Website  string
-// 	Username string
-// 	Password string
-// }
-//
-// type PasswordManager struct {
-// 	entries []PasswordEntry
-// }
+type dropdownItem struct {
+	ID      int
+	Website string
+}
 
 var (
 	webee = widget.NewEntry()
@@ -37,71 +32,103 @@ var (
 	passe = widget.NewPasswordEntry()
 	mpass = widget.NewPasswordEntry()
 
+	idl    = widget.NewLabel("ID: ")
 	webeel = widget.NewLabel("Website : ")
 	unamel = widget.NewLabel("Username: ")
 	passel = widget.NewLabel("Password: ")
 
+	entryFields = []*widget.Entry{webee, uname, passe, mpass}
+	labelFields = []*widget.Label{idl, webeel, unamel, passel}
+
+	// <---------------------- JSON SECTION ------------------------>
+	j, _          = jman.NewJman()
+	entries, _    = j.GetEntries()
 	autoGenButton *widget.Button
 )
 
-func autoGen() {
-	genpass := passutil.GeneratePassword()
-	passe.SetText(genpass)
-	passe.Refresh()
-}
-
-func OnSelect(selected string) {
-	webeel.SetText("Website : " + selected)
-	unamel.SetText("Username: " + selected)
-	passel.SetText("Password: " + selected)
-}
-
 func main() {
+
 	a := app.New()
 	w := a.NewWindow("Password Manager")
 
-	// Create Password Manager
-	// pm := PasswordManager{}
-	manager := jman.PasswordManager{}
+	// 	<---------------------- WIDGETS SECTION ------------------------>
+	entries = updateEntries(*j)
+	// vitems := make([]string, len(entries))
+	// for i, entry := range entries {
+	// 	vitems[i] = entry.Website
+	// }
 
-  if _, err := os.Stat("passwords.json"); err == nil {
-		data, err := ioutil.ReadFile("passwords.json")
-		if err != nil {
-			fmt.Println("Error loading passwords:", err)
-			return
-		}else{
-      fmt.Println("pass read !!")
-    }
+	// vdropdown := widget.NewSelect(vitems, func(selected string) {
+	// 	for _, entry := range entries {
+	// 		if entry.Website == selected {
+	// 			idl.SetText("ID: " + strconv.Itoa(entry.ID))
+	// 			webeel.SetText("Website: " + entry.Website)
+	// 			unamel.SetText("Username: " + entry.Username)
+	// 			passel.SetText("Password: " + entry.Password)
+	// 			break
+	// 		}
+	// 	}
+	// })
 
-		err = json.Unmarshal(data, &manager)
-		if err != nil {
-			fmt.Println("Error parsing passwords:", err)
-			return
-		} else{
-      fmt.Println("pass not read !!")
-    }
+	entries = updateEntries(*j)
+
+	items := make([]string, len(entries))
+	for i, entry := range entries {
+		// Add the ID and website name to the items slice
+		items[i] = fmt.Sprintf("%d: %s", entry.ID, entry.Website)
 	}
 
-	items := []string{"Item0", "Item1", "Item2", "Item3", "Item4",
-		"Item5", "Item6", "Item7", "Item8", "Item9"}
+	// Create a slice of dropdown items with the ID and website name
+	// dropdownItems := make([]dropdownItem, len(entries))
+	// for i, entry := range entries {
+	// 	dropdownItems[i] = dropdownItem{ID: entry.ID, Website: entry.Website}
+	// }
 
-	dropdown := widget.NewSelect(items, OnSelect)
+	// Create the dropdown widget using the dropdownItems slice
+	dropdown := widget.NewSelect(items, func(selected string) {
+
+		// Parse the selected ID from the dropdown selection
+		selectedID, err := strconv.Atoi(strings.Split(selected, ":")[0])
+		if err != nil {
+			return
+		}
+
+		// Find the selected entry by ID and populate the entry details
+		for _, entry := range entries {
+			if entry.ID == selectedID {
+
+				webeel.SetText("Website: " + entry.Website)
+				unamel.SetText("Username: " + entry.Username)
+				passel.SetText("Password: " + entry.Password)
+
+				idl.SetText("ID: " + strconv.Itoa(entry.ID))
+				webee.SetText(entry.Website)
+				uname.SetText(entry.Username)
+				passe.SetText(entry.Password)
+				break
+			}
+		}
+	})
+
 	autoGenButton = widget.NewButtonWithIcon("Generate Password", theme.ViewRefreshIcon(), autoGen)
 
-	webee.SetPlaceHolder("Enter Website Name ")
+	webee.SetPlaceHolder("Enter Website Name")
 	uname.SetPlaceHolder("Enter Username")
 	passe.SetPlaceHolder("Create or Generate New Password")
 	mpass.SetPlaceHolder("Enter Master Password")
 
-	// Create Tabs
+	// <----------------------------------- VIEW TAB SECTION ----------------------------------->
 	viewTab := container.New(layout.NewVBoxLayout(),
 		widget.NewLabel("View Entries"),
 	)
 	viewTab.Add(dropdown)
+	viewTab.Add(idl)
 	viewTab.Add(webeel)
 	viewTab.Add(unamel)
 	viewTab.Add(passel)
 	viewTab.Add(widget.NewButtonWithIcon("View", theme.ZoomInIcon(), func() {}))
+
+	// <---------------------- ADD TAB SECTION ------------------------>
 
 	addTab := container.New(layout.NewVBoxLayout(),
 		widget.NewLabel("Add Entry"),
@@ -114,35 +141,43 @@ func main() {
 
 	addTab.Add(widget.NewButtonWithIcon("Add", theme.ContentAddIcon(), func() {
 
-    newEntry, _ := jman.GetNewEntry(webee.Text, uname.Text, passe.Text)
-    fmt.Println("New Entry: ", newEntry)
-    manager.AddEntry(newEntry)
-
+		w := webee.Text
+		u := uname.Text
+		p := passe.Text
+		j.AddEntry(w, u, p)
 
 	}))
 
-	// 	addTab.Add(widget.NewButtonWithIcon("Add", theme.ContentAddIcon(), func() {
-	// 		web := addTab.Objects[1].(*widget.Entry).Text
-	// 		uname := addTab.Objects[3].(*widget.Entry).Text
-	// 		var pass string
-	// 		if passe.Text == "" {
-	// 			pass = addTab.Objects[5].(*widget.Entry).Text
-	// 		} else {
-	// 			pass = passe.Text
-	// 		}
+	// <---------------------- UPDATE TAB SECTION ------------------------>
 
 	updateTab := container.New(layout.NewVBoxLayout(),
 		widget.NewLabel("Update Entry"),
 	)
 
 	updateTab.Add(dropdown)
+	updateTab.Add(idl)
 	updateTab.Add(webee)
 	updateTab.Add(uname)
 	updateTab.Add(passe)
 	updateTab.Add(autoGenButton)
 	updateTab.Add(mpass)
 
-	updateTab.Add(widget.NewButtonWithIcon("Update", theme.ContentAddIcon(), func() {}))
+	updateTab.Add(widget.NewButtonWithIcon("Update", theme.ContentAddIcon(), func() {
+
+		id, err := strconv.Atoi(strings.Split(dropdown.Selected, ":")[0])
+
+		w := webee.Text
+		u := uname.Text
+		p := passe.Text
+
+		err = j.UpdateEntry(id, w, u, p)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+	}))
+
+	// <---------------------- REMOVE TAB SECTION ------------------------>
 
 	removeTab := container.New(layout.NewVBoxLayout(),
 		widget.NewLabel("Remove Entry"),
@@ -154,6 +189,8 @@ func main() {
 	removeTab.Add(passel)
 	removeTab.Add(widget.NewButtonWithIcon("Remove", theme.ContentRemoveIcon(), func() {}))
 
+	// <---------------------- GUI MANAGEMENT SECTION ------------------------>
+
 	// Create App Tabs
 	tabs := container.NewAppTabs(
 		container.NewTabItem("View", viewTab),
@@ -161,11 +198,14 @@ func main() {
 		container.NewTabItem("Remove", removeTab),
 		container.NewTabItem("Update", updateTab),
 	)
-	tabs.SetTabLocation(container.TabLocationTop)
 
 	tabs.OnChanged = func(tab *container.TabItem) {
-		go reloadJSONFile(tab, jsfile)
+		// switchTab(*j, entries, vitems, vdropdown, dropdown, tabs)
+		resetFields(*j, entryFields, labelFields, dropdown)
+    refreshList(*j, dropdown)
 	}
+
+	tabs.SetTabLocation(container.TabLocationTop)
 
 	// Set Content
 	w.SetContent(tabs)
@@ -175,59 +215,53 @@ func main() {
 	w.ShowAndRun()
 }
 
-// func (pm *PasswordManager) addEntry(website, username, password, masterPassword string) error {
-// 	// Check if master password is correct
-// 	if masterPassword != "test" {
-// 		return fmt.Errorf("incorrect master password")
-// 	}
-// 
-// 	// Add entry
-// 	pm.entries = append(pm.entries, PasswordEntry{
-// 		Website:  website,
-// 		Username: username,
-// 		Password: password,
-// 	})
-// 
-// 	// Save entries to file
-// 	if err := pm.saveEntries(); err != nil {
-// 		return fmt.Errorf("failed to save entries: %w", err)
-// 	}
-// 	return nil
-// 
-// }
-// 
-// func (pm *PasswordManager) saveEntries() error {
-// 	// TODO: Implement saving entries to a file
-// 	return nil
-// }
-// 
-// func (pm *PasswordManager) loadEntries() error {
-// 	// TODO: Implement loading entries from a file
-// 	return nil
-// }
-
-func reloadJSONFile(tab *container.TabItem, filename string) {
-	if tab == nil || tab.Content == nil {
-		return
-	}
-
-	// Check if the tab content is a widget that supports updating its content
-	if content, ok := tab.Content.(fyne.CanvasObject); ok {
-		// Read the JSON file and update the content of the widget
-		data, err := ioutil.ReadFile(filename)
-		if err != nil {
-			log.Println("Error loading JSON file:", err)
-			return
-		}
-
-		// Assuming that the content widget is a label
-		if label, ok := content.(*widget.Label); ok {
-			label.SetText(string(data))
-		}
-
-		// for _, field := range entryFields {
-		// 	field.SetText("")
-		// }
-
-	}
+func autoGen() {
+	genpass := passutil.GeneratePassword()
+	passe.SetText(genpass)
+	passe.Refresh()
 }
+
+func resetFields(j jman.Jman, entryFields []*widget.Entry, labelFields []*widget.Label, drop *widget.Select) {
+	// Reset text for all Entry widgets
+	for _, entryy := range entryFields {
+		entryy.SetText("")
+	}
+
+	// Reset text for all Label widgets
+	strs := []string{"ID: ", "Website: ", "Username: ", "Password: "}
+	for i, label := range labelFields {
+		label.SetText(strs[i])
+	}
+
+	drop.ClearSelected()
+  items := refreshList(j, drop)
+  drop.Options = items
+
+}
+
+func refreshList(j jman.Jman, dropdown *widget.Select) []string {
+  entries = updateEntries(j)
+
+	items := make([]string, len(entries))
+	for i, entry := range entries {
+		items[i] = fmt.Sprintf("%d: %s", entry.ID, entry.Website)
+	}
+
+  return items
+
+}
+
+func updateEntries(j jman.Jman) []jman.Entry {
+	err := j.Save()
+	if err != nil {
+		fmt.Println("Error (Save of Data): ", err)
+	}
+	err = j.Load()
+	if err != nil {
+		fmt.Println("Error (Loading of Data): ", err)
+	}
+	entries, _ = j.GetEntries()
+
+	return entries
+}
+
