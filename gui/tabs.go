@@ -1,4 +1,4 @@
-package main
+package gui
 
 import (
 	"fmt"
@@ -12,8 +12,8 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 
-	"github.com/dharmit009/gopass/ui/jman"
-	"github.com/dharmit009/gopass/ui/passutil"
+	"github.com/dharmit009/gopass/jman"
+	"github.com/dharmit009/gopass/passutil"
 )
 
 const jsfile = "./password.json"
@@ -44,7 +44,7 @@ var (
 	strengthbar   *widget.ProgressBar
 )
 
-func main() {
+func Tabs() fyne.Window {
 
 	a := app.New()
 	w := a.NewWindow("Password Manager")
@@ -129,7 +129,7 @@ func main() {
 		p := passe.Text
 
 		if webee.Text != "" && uname.Text != "" && passe.Text != "" && mpass.Text != "" {
-			jman.ShowConfirmationDialog(w, "Add Entry?", "Are you sure you want to Add this entry?", func(response bool) {
+			ShowConfirmationDialog(w, "Add Entry?", "Are you sure you want to Add this entry?", func(response bool) {
 				if response {
 					err := j.AddEntry(we, u, p)
 					resetFields(*j, entryFields, labelFields, dropdown)
@@ -164,7 +164,7 @@ func main() {
 		p := passe.Text
 
 		if id > 0 {
-			jman.ShowConfirmationDialog(w, "Remove Entry?", "Are you sure you want to delete this entry?", func(response bool) {
+			ShowConfirmationDialog(w, "Remove Entry?", "Are you sure you want to delete this entry?", func(response bool) {
 				if response {
 					err = j.UpdateEntry(id, we, u, p)
 					resetFields(*j, entryFields, labelFields, dropdown)
@@ -190,7 +190,7 @@ func main() {
 
 		id, err := strconv.Atoi(strings.Split(dropdown.Selected, ":")[0])
 		if id > 0 {
-			jman.ShowConfirmationDialog(w, "Remove Entry?", "Are you sure you want to delete this entry?", func(response bool) {
+			ShowConfirmationDialog(w, "Remove Entry?", "Are you sure you want to delete this entry?", func(response bool) {
 				if response {
 					err = j.RemoveEntry(id)
 					resetFields(*j, entryFields, labelFields, dropdown)
@@ -226,6 +226,7 @@ func main() {
 	// Show Window
 	w.Resize(fyne.NewSize(400, 300))
 	w.ShowAndRun()
+  return w
 }
 
 func autoGen() {

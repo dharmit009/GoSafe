@@ -1,4 +1,4 @@
-package main
+package gui 
 
 import (
 	"fyne.io/fyne/v2"
@@ -15,7 +15,7 @@ var (
 	rpass2 = widget.NewPasswordEntry()
 )
 
-func main() {
+func Registration() fyne.Window {
 
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Password Manager")
@@ -41,6 +41,8 @@ func main() {
 	myWindow.SetIcon(theme.FyneLogo())
 	// Show the window and run the application
 	myWindow.ShowAndRun()
+
+  return myWindow
 }
 
 func createAccount(myWindow fyne.Window) func() {

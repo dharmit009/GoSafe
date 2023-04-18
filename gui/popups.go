@@ -19,3 +19,5 @@ func ShowErrorDialog(window fyne.Window, title string, message string) {
     errorDialog := dialog.NewError(fmt.Errorf(message), window)
     errorDialog.Show()
 }
+
+

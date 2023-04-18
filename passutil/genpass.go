@@ -20,6 +20,7 @@ func header(mess string) {
 func GeneratePassword() string {
 	// header("### Pass Generator ###")
 
+  var length = 16
 	var uppercase_letters string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	var lowercase_letters string = strings.ToLower(uppercase_letters)
 	var digits string = "0123456789"
@@ -40,7 +41,7 @@ func GeneratePassword() string {
 
 	// header("### Password Generation ### ")
 
-	var length int32 = 16
+	// var length int32 = 16
 	var allowedCharacters string = ""
 
 	if upps == true {

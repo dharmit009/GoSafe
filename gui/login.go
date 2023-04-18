@@ -1,4 +1,4 @@
-package main
+package gui
 
 import (
 	"fyne.io/fyne/v2"
@@ -9,7 +9,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func main() {
+func Login() fyne.Window{
 
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Password Manager")
@@ -53,5 +53,6 @@ func main() {
 
 	// Show the window and run the application
 	myWindow.ShowAndRun()
+  return myWindow
 }
 

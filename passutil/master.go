@@ -1,10 +1,8 @@
-package watchman
+package passutil
 
 import (
 	"fmt"
 	"os"
-
-	"github.com/dharmit009/gopass/passutil"
 )
 
 const fileName = "./test.enc"
@@ -32,7 +30,7 @@ func CheckPassEqualToMP(pass1 string) bool {
     return logInfo
   }
 	var fileName string = "./test.enc"
-	out, err := passutil.DecryptFile(fileName, pass1)
+	out, err := DecryptFile(fileName, pass1)
 	if err != nil {
     logInfo = false
 	} else {
@@ -51,7 +49,7 @@ func CreateMasterKey(fileName, pass1, pass2 string) bool {
 		return true
 	} else {
 		if CheckPassEqual(pass1, pass2) == true {
-			if err := passutil.EncryptFile(fileName, []byte(pass2), pass1); err != nil {
+			if err := EncryptFile(fileName, []byte(pass2), pass1); err != nil {
 				fmt.Println("Error: ", err)
 				return false
 			} else {
