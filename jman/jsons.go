@@ -106,18 +106,31 @@ func (j *Jman) RemoveEntry(id int) error {
 	return j.Save()
 }
 
+// func (j *Jman) UpdateEntry(id int, website, username, password, mpass string) error {
+// 	for _, e := range j.Entries {
+// 		if e.ID == id {
+// 			encpasswd, _ := passutil.Encrypt([]byte(password), mpass)
+// 			e.Website = website
+// 			e.Username = username
+// 			e.Password = encpasswd
+// 			return j.Save()
+// 		}
+// 	}
+// 	return errors.New("entry not found")
+// }
 func (j *Jman) UpdateEntry(id int, website, username, password, mpass string) error {
-	for _, e := range j.Entries {
+	for i, e := range j.Entries {
 		if e.ID == id {
 			encpasswd, _ := passutil.Encrypt([]byte(password), mpass)
-			e.Website = website
-			e.Username = username
-			e.Password = encpasswd
+			j.Entries[i].Website = website
+			j.Entries[i].Username = username
+			j.Entries[i].Password = encpasswd
 			return j.Save()
 		}
 	}
 	return errors.New("entry not found")
 }
+
 
 func fileExists(jsfile string) bool {
 	_, err := os.Stat(jsfile)

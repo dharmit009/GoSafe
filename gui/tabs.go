@@ -70,12 +70,13 @@ func Tabs(window fyne.Window) *fyne.Container {
 				fmt.Println(entry.Password)
 
 				idl.SetText("ID: " + strconv.Itoa(entry.ID))
-				webeel.SetText("Website: ")
-				unamel.SetText("Username: ")
+				webeel.SetText("Website: "+ entry.Website)
+				unamel.SetText("Username: " + entry.Username)
+        passel.SetText("Password: ")
 
-				// webee.SetText(entry.Website)
-				// uname.SetText(entry.Username)
-				// passe.SetText("")
+				webee.SetText(entry.Website)
+				uname.SetText(entry.Username)
+				passe.SetText(string(entry.Password))
 				break
 			}
 		}
@@ -107,26 +108,27 @@ func Tabs(window fyne.Window) *fyne.Container {
 	viewTab.Add(passel)
 	viewTab.Add(mpass)
 	viewTab.Add(widget.NewButtonWithIcon("View", theme.ZoomInIcon(), func() {
-
 		id, _ := strconv.Atoi(strings.Split(dropdown.Selected, ":")[0])
 		idl.SetText("ID: " + strconv.Itoa(id))
-		if mpass.Text != ""{
+		if mpass.Text != "" {
 			if out := passutil.CheckPassEqualToMP(mpass.Text); out == true {
 				ShowConfirmationDialog(window, "View Entry?", "Are you sure you want to View this entry?", func(response bool) {
 					if response {
-            viewEntry, _ := j.GetEntryById(id)
-            viewPasss, _ := j.GetEntryPassword(id, mpass.Text)
-            webeel.SetText("Website: " + viewEntry.Website)
-            unamel.SetText("Username: " + viewEntry.Username)
-            passel.SetText("Password: " + string(viewPasss))
+						viewEntry, _ := j.GetEntryById(id)
+						viewPasss, _ := j.GetEntryPassword(id, mpass.Text)
+						webeel.SetText("Website: " + viewEntry.Website)
+						unamel.SetText("Username: " + viewEntry.Username)
+						passel.SetText("Password: " + string(viewPasss))
 					}
 				})
 			}
-		}else{
-      ShowErrorDialog(window, "Error", "Enter Master Password!")
-    }
+		} else {
+			ShowErrorDialog(window, "Error", "Enter Master Password!")
+		}
 
 	}))
+  resetFields(*j, entryFields, labelFields, dropdown, window)
+  mpass.Text = ""
 
 	// <---------------------- ADD TAB SECTION ------------------------>
 
@@ -172,7 +174,6 @@ func Tabs(window fyne.Window) *fyne.Container {
 	// <---------------------- UPDATE TAB SECTION ------------------------>
 
 	updateTab := container.New(layout.NewVBoxLayout())
-
 	updateTab.Add(dropdown)
 	updateTab.Add(idl)
 	updateTab.Add(webee)
@@ -182,27 +183,39 @@ func Tabs(window fyne.Window) *fyne.Container {
 	updateTab.Add(autoGenButton)
 	updateTab.Add(mpass)
 
-	updateTab.Add(widget.NewButtonWithIcon("Update", theme.ContentAddIcon(), func() {
+	 updateTab.Add(widget.NewButtonWithIcon("Update", theme.ContentAddIcon(), func() {
 
-		id, err := strconv.Atoi(strings.Split(dropdown.Selected, ":")[0])
+	 	id, err := strconv.Atoi(strings.Split(dropdown.Selected, ":")[0])
+     
+    updateEntry, _ := j.GetEntryById(id)
+	 	webee.Text = updateEntry.Website
+	 	uname.Text = updateEntry.Username
 
-		we := webee.Text
-		u := uname.Text
-		p := passe.Text
+	 	we := webee.Text
+	 	u := uname.Text
+	 	p := passe.Text
 
-		if id > 0 {
-			ShowConfirmationDialog(window, "Update Entry?", "Are you sure you want to Update this entry?", func(response bool) {
-				if response {
-					err = j.UpdateEntry(id, we, u, p, mpass.Text)
-					resetFields(*j, entryFields, labelFields, dropdown, window)
-					if err != nil {
-						fmt.Println(err)
-					}
-				}
-			})
-		}
-
-	}))
+	 	if id > 0 {
+	 		if mpass.Text != "" {
+	 			if out := passutil.CheckPassEqualToMP(mpass.Text); out == true {
+	 				ShowConfirmationDialog(window, "Update Entry?", "Are you sure you want to Update this entry?", func(response bool) {
+	 					if response {
+               fmt.Print("Updated Pass: ", p)
+	 						err = j.UpdateEntry(id, we, u, p, mpass.Text)
+               if err!=nil{
+                 print("Error: while updating the entry")
+                 print("ID: ", id)
+               }
+	 						resetFields(*j, entryFields, labelFields, dropdown, window)
+	 						if err != nil {
+	 							fmt.Println(err)
+	 						}
+	 					}
+	 				})
+	 			}
+	 		}
+	 	}
+	 }))
 
 	// <---------------------- REMOVE TAB SECTION ------------------------>
 
@@ -212,10 +225,13 @@ func Tabs(window fyne.Window) *fyne.Container {
 	removeTab.Add(idl)
 	removeTab.Add(webeel)
 	removeTab.Add(unamel)
-	removeTab.Add(passel)
 	removeTab.Add(widget.NewButtonWithIcon("Remove", theme.ContentRemoveIcon(), func() {
 
 		id, err := strconv.Atoi(strings.Split(dropdown.Selected, ":")[0])
+    removeEntry, _ := j.GetEntryById(id)
+    webeel.SetText("Website: "+ removeEntry.Website)
+    unamel.SetText("Username: "+ removeEntry.Username)
+
 		if id > 0 {
 			ShowConfirmationDialog(window, "Remove Entry?", "Are you sure you want to delete this entry?", func(response bool) {
 				if response {
