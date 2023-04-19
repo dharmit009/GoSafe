@@ -228,9 +228,9 @@ func Tabs(window fyne.Window) *fyne.Container {
 	removeTab.Add(widget.NewButtonWithIcon("Remove", theme.ContentRemoveIcon(), func() {
 
 		id, err := strconv.Atoi(strings.Split(dropdown.Selected, ":")[0])
-    removeEntry, _ := j.GetEntryById(id)
-    webeel.SetText("Website: "+ removeEntry.Website)
-    unamel.SetText("Username: "+ removeEntry.Username)
+    // removeEntry, _ := j.GetEntryById(id)
+    // webeel.SetText("Website: "+ removeEntry.Website)
+    // unamel.SetText("Username: "+ removeEntry.Username)
 
 		if id > 0 {
 			ShowConfirmationDialog(window, "Remove Entry?", "Are you sure you want to delete this entry?", func(response bool) {
