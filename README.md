@@ -1,6 +1,6 @@
-# GOPASS
+# GoSafe
 
-*Gopass* is a password manager created using Golang and FyneGUI. It uses
+*GoSafe* is a password manager created using Golang and FyneGUI. It uses
 Advance Encryption Standard 128-bit to store and manage the passwords.
 
 ![][1]
