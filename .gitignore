@@ -1,3 +1,4 @@
-passwords.json
-password.json
-master.enc
+./passwords.json
+./password.json
+./master.enc
+./.gitignore
